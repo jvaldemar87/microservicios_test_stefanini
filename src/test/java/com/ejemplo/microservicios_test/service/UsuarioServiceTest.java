@@ -124,14 +124,14 @@ public class UsuarioServiceTest {
         Usuario usuario = new Usuario();
         usuario.setId(userId);
         usuario.setNombre("Juan");
-        usuario.setEmail("juan@example.com");
+        usuario.setEmail("juan@ejemplo.com");
 
         when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuario));
 
         Usuario resultado = usuarioService.obtenerUsuarioPorId(userId);
 
         assertEquals("Juan", resultado.getNombre());
-        assertEquals("juan@example.com", resultado.getEmail());
+        assertEquals("juan@ejemplo.com", resultado.getEmail());
         verify(usuarioRepository, times(1)).findById(userId);
     }
 
@@ -143,5 +143,73 @@ public class UsuarioServiceTest {
 
         assertThrows(UsuarioNoEncontradoException.class, () -> usuarioService.obtenerUsuarioPorId(userId));
         verify(usuarioRepository, times(1)).findById(userId);
+    }
+
+    @Test
+    void actualizarUsuario_deberiaActualizarUsuarioSiExiste() {
+        Long userId = 1L;
+        Usuario usuarioExistente = new Usuario();
+        usuarioExistente.setId(userId);
+        usuarioExistente.setNombre("Juan");
+        usuarioExistente.setEmail("juan@ejemplo.com");
+
+        Usuario usuarioActualizado = new Usuario();
+        usuarioActualizado.setNombre("Juan Actualizado");
+        usuarioActualizado.setEmail("juan_actualizado@ejemplo.com");
+        usuarioActualizado.setPassword("nuevo_password");
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuarioExistente));
+        when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuarioActualizado);
+
+        Usuario resultado = usuarioService.actualizarUsuario(userId, usuarioActualizado);
+
+        assertEquals("Juan Actualizado", resultado.getNombre());
+        assertEquals("juan_actualizado@ejemplo.com", resultado.getEmail());
+        verify(usuarioRepository, times(1)).save(usuarioExistente);
+    }
+
+    @Test
+    void actualizarUsuario_deberiaLanzarUsuarioNoEncontradoException_siNoExiste() {
+        Long userId = 1L;
+        Usuario usuarioActualizado = new Usuario();
+        usuarioActualizado.setNombre("Ana");
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThrows(UsuarioNoEncontradoException.class, () -> usuarioService.actualizarUsuario(userId, usuarioActualizado));
+        verify(usuarioRepository, never()).save(any(Usuario.class));
+    }
+
+    @Test
+    void actualizarUsuarioParcial_deberiaActualizarCamposEspecificos_siExisten() {
+        Long userId = 1L;
+        Usuario usuarioExistente = new Usuario();
+        usuarioExistente.setId(userId);
+        usuarioExistente.setNombre("Juan");
+        usuarioExistente.setEmail("juan@ejemplo.com");
+
+        Usuario usuarioParcial = new Usuario();
+        usuarioParcial.setNombre("Juan Actualizado");
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.of(usuarioExistente));
+        when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuarioExistente);
+
+        Usuario resultado = usuarioService.actualizarUsuarioParcial(userId, usuarioParcial);
+
+        assertEquals("Juan Actualizado", resultado.getNombre());
+        assertEquals("juan@ejemplo.com", resultado.getEmail()); // Email no cambia
+        verify(usuarioRepository, times(1)).save(usuarioExistente);
+    }
+
+    @Test
+    void actualizarUsuarioParcial_deberiaLanzarUsuarioNoEncontradoException_siNoExiste() {
+        Long userId = 1L;
+        Usuario usuarioParcial = new Usuario();
+        usuarioParcial.setNombre("Ana");
+
+        when(usuarioRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThrows(UsuarioNoEncontradoException.class, () -> usuarioService.actualizarUsuarioParcial(userId, usuarioParcial));
+        verify(usuarioRepository, never()).save(any(Usuario.class));
     }
 }

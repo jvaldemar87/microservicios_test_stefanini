@@ -42,4 +42,36 @@ public class UsuarioService {
         return usuarioRepository.findById(id)
             .orElseThrow(() -> new UsuarioNoEncontradoException("Usuario con ID " + id + " no encontrado"));
     }
+
+    public Usuario actualizarUsuario(Long id, Usuario usuarioActualizado) {
+        Usuario usuarioExistente = usuarioRepository.findById(id)
+                .orElseThrow(() -> new UsuarioNoEncontradoException("Usuario con ID " + id + " no encontrado"));
+
+        // Actualizar los campos del usuario existente
+        usuarioExistente.setNombre(usuarioActualizado.getNombre());
+        usuarioExistente.setEmail(usuarioActualizado.getEmail());
+        usuarioExistente.setPassword(usuarioActualizado.getPassword());
+
+        return usuarioRepository.save(usuarioExistente);
+    }
+
+    public Usuario actualizarUsuarioParcial(Long id, Usuario usuarioParcial) {
+        Usuario usuarioExistente = usuarioRepository.findById(id)
+                .orElseThrow(() -> new UsuarioNoEncontradoException("Usuario con ID " + id + " no encontrado"));
+
+        // Solo actualizamos los campos no nulos de usuarioParcial
+        if (usuarioParcial.getNombre() != null) {
+            usuarioExistente.setNombre(usuarioParcial.getNombre());
+        }
+        if (usuarioParcial.getEmail() != null) {
+            usuarioExistente.setEmail(usuarioParcial.getEmail());
+        }
+        if (usuarioParcial.getPassword() != null) {
+            usuarioExistente.setPassword(usuarioParcial.getPassword());
+        }
+
+        return usuarioRepository.save(usuarioExistente);
+    }
+
+    
 }
