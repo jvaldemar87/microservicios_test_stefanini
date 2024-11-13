@@ -13,4 +13,10 @@ public class ControladorExcepciones {
         // Retornamos el mensaje de la excepción y un código HTTP 409
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
     }
+
+    @ExceptionHandler(UsuarioNoEncontradoException.class)
+    public ResponseEntity<String> handleUsuarioNoEncontradoException(UsuarioNoEncontradoException ex) {
+        // Retornamos el mensaje de la excepción y un código HTTP 404
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
 }

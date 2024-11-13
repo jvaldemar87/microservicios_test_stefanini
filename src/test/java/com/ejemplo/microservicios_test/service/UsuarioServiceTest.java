@@ -10,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.ejemplo.microservicios_test.exeption.UsuarioNoEncontradoException;
 import com.ejemplo.microservicios_test.exeption.UsuarioYaExisteException;
 import com.ejemplo.microservicios_test.model.Usuario;
 import com.ejemplo.microservicios_test.repository.UsuarioRepository;
@@ -56,5 +57,25 @@ public class UsuarioServiceTest {
         assertThrows(UsuarioYaExisteException.class, () -> usuarioService.crearUsuario(usuario));
 
         verify(usuarioRepository, never()).save(any(Usuario.class));
+    }
+
+    @Test
+    void eliminarUsuarioPorId_deberiaEliminarUsuarioSiExiste() {
+        Long userId = 1L;
+        when(usuarioRepository.existsById(userId)).thenReturn(true);
+
+        usuarioService.eliminarUsuarioPorId(userId);
+
+        verify(usuarioRepository, times(1)).deleteById(userId);
+    }
+
+    @Test
+    void eliminarUsuarioPorId_deberiaLanzarUsuarioNoEncontradoException_siNoExiste() {
+        Long userId = 1L;
+        when(usuarioRepository.existsById(userId)).thenReturn(false);
+
+        assertThrows(UsuarioNoEncontradoException.class, () -> usuarioService.eliminarUsuarioPorId(userId));
+
+        verify(usuarioRepository, never()).deleteById(anyLong());
     }
 }
