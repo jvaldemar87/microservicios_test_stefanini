@@ -1,5 +1,7 @@
 package com.ejemplo.microservicios_test.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,5 +32,14 @@ public class UsuarioService {
             throw new UsuarioNoEncontradoException("Usuario con ID " + id + " no encontrado");
         }
         usuarioRepository.deleteById(id);
+    }
+
+    public List<Usuario> obtenerTodosLosUsuarios() {
+        return usuarioRepository.findAll();
+    }
+
+    public Usuario obtenerUsuarioPorId(Long id) {
+        return usuarioRepository.findById(id)
+            .orElseThrow(() -> new UsuarioNoEncontradoException("Usuario con ID " + id + " no encontrado"));
     }
 }
