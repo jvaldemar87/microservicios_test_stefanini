@@ -25,6 +25,4 @@ public class Usuario {
 
     @Column(nullable = false)
     private String password;
-
-    // Getters y Setters
 }
